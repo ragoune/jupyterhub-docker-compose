@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  jupyterlab:
+    image: jupyterlab
+    build:
+      context: ./jupyterlab
+      dockerfile: Dockerfile
+    command: echo
+    networks:
+      - jupyter_network
+    ports:
+      - 8888:8888
+
+  jupyterhub:
+    image: jupyterhub
+    build:
+      context: ./jupyterhub
+      dockerfile: Dockerfile
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - jupyterhub_data:/srv/jupyterhub
+    ports:
+      - 8000:8000
+    networks:
+      - jupyter_network
+    environment:
+      - DOCKER_JUPYTERLAB_CONTAINER=jupyterlab
+      - DOCKER_NETWORK_NAME=jupyter_network
+      - HUB_IP=jupyterhub
+
+networks:
+  jupyter_network:
+    external:
+      name: jupyter_network
+
+volumes:
+  jupyterhub_data:
